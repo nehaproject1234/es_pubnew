@@ -37,7 +37,8 @@ batch_size = 1000  # Number of rows per batch
 
 def fetch_max_duration_data():
     select_max_duration_query = """
-    SELECT top 1 
+    SELECT top 1
+    id as max_id,
     YEAR(date) as max_year, 
     date as max_date, 
     time as max_time
@@ -57,11 +58,11 @@ def fetch_max_duration_data():
             cursor.execute(select_max_duration_query)
 
             max_duration_query_result = cursor.fetchone()
-
+            max_id = max_duration_query_result.max_id
             max_year = max_duration_query_result.max_year
             max_date_time = str(max_duration_query_result.max_date) + ' ' + str(max_duration_query_result.max_time)
             
-            return max_year, max_date_time
+            return max_id, max_year, max_date_time
             
 max_id, max_year, max_date_time = fetch_max_duration_data()
 
