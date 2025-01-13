@@ -1,6 +1,7 @@
 name: Connect via VPN and Run Workflow
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
