@@ -42,7 +42,7 @@ def fetch_max_duration_data():
     date as max_date, 
     time as max_time
     from extra_staff.test
-    order by year(date) desc, date desc, time desc
+    order by id desc, year(date) desc, date desc, time desc
     """
     conn_str = (
             f"DRIVER={{{azure_sql_config['driver']}}};"
@@ -63,7 +63,7 @@ def fetch_max_duration_data():
             
             return max_year, max_date_time
             
-max_year, max_date_time = fetch_max_duration_data()
+max_id, max_year, max_date_time = fetch_max_duration_data()
 
 # Query to fetch data from MySQL
 mysql_query = f"""
@@ -77,6 +77,7 @@ SELECT
 FROM notes 
 WHERE YEAR(Date) >= '{max_year}'
 AND concat(date, ' ', time) > '{max_date_time}'
+AND id > max_id
 AND YEAR(Date) NOT IN (5520, 2035)
 """
 
