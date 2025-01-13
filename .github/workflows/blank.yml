@@ -24,7 +24,7 @@ jobs:
 
       - name: Start VPN Connection
         run: |
-          sudo openvpn --config vpn-config.ovpn --auth-user-pass auth.txt --daemon
+          sudo openvpn --config ROL_neha.mawal_RecruitOnline.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
       - name: Run Python Script
