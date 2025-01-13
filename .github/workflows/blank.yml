@@ -27,5 +27,14 @@ jobs:
           sudo openvpn --config ROL_neha.mawal_RecruitOnline.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13.1' # Replace with your Python version, e.g., '3.9'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt # Ensure your repo has a requirements.txt
       - name: Run Python Script
         run: python sqlconn3.py
