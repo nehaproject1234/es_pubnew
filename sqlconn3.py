@@ -1,3 +1,4 @@
+import os
 import pymysql
 import pyodbc
 import pandas as pd
@@ -18,7 +19,7 @@ mysql_config = {
 # Configuration
 ssh_host = "13.236.27.200"  # SSH server (bastion host) IP
 ssh_user = "forge"   # SSH username (e.g., ec2-user)
-ssh_key_path = "es_pubnew/neha_key.pem"
+ssh_key_path = os.environ.get('SSH_KEY_PATH', './neha_key.pem')
 db_host = "rol-nz-replica.c1tua57r6j6p.ap-southeast-2.rds.amazonaws.com"
 
 # Azure SQL Configuration
