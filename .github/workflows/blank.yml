@@ -28,4 +28,4 @@ jobs:
           sleep 10  # Wait for the VPN to establish
 
       - name: Run Python Script
-        run: python your_script.py
+        run: python sqlconn3.py
