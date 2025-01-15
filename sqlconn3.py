@@ -10,45 +10,31 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # MySQL Configuration
 mysql_config = {
-    "host": os.environ.get("MSH"),       
-    "user": os.environ.get("MSU"),       
-    "password": os.environ.get("MSP"),  
-    "database": os.environ.get("MSN"),  
+    "host": "127.0.0.1",       # e.g., "localhost" or IP
+    "user": "extrastaff_powerbi",       # MySQL username
+    "password": "N8Y!(2]NGuUOhGhR", # MySQL password
+    "database": "extrastaff_rol_ai",     # MySQL database name
 }
 
 # Configuration
-ssh_host = os.environ.get("SSH")  
-ssh_user = os.environ.get("SSU") 
-ssh_key_path = os.environ.get("SSH_KEY_PATH", "./ssh_key.pem") 
-db_host = os.environ.get("DBH")  # Retrieve DB host from environment variables
+# Configuration
+ssh_host = "13.236.27.200"  # SSH server (bastion host) IP
+ssh_user = "forge"   # SSH username (e.g., ec2-user)
+ssh_key_path = os.environ.get("SSH_KEY_PATH", "./ssh_key.pem")
+db_host = "rol-nz-replica.c1tua57r6j6p.ap-southeast-2.rds.amazonaws.com"
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": os.environ.get("ASS"),     # Azure SQL server name
-    "database": os.environ.get("ASD"), # Azure SQL database name
-    "username": os.environ.get("ASU"), # Azure SQL username
-    "password": os.environ.get("ASP"), # Azure SQL password
-    "driver": "ODBC Driver 17 for SQL Server",        # Ensure this driver is installed
+    "server": "extrastaff-sales.database.windows.net",
+    "database": "extrastaff_sales",
+    "username": "dev-user",
+    "password": "Nboml@2022",
+    "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
 }
 
 # Azure SQL Table Name
 azure_table_name = "extra_staff.notes"
 batch_size = 1000  # Number of rows per batch
-
-# check credentials
-print(mysql_config["host"])
-print(mysql_config["user"])
-print(mysql_config["password"])
-print(mysql_config["database"])
-print(azure_sql_config["server"])
-print(azure_sql_config["database"])
-print(azure_sql_config["username"])
-print(azure_sql_config["password"])
-print(ssh_host)
-print(ssh_key_path)
-print(ssh_user)
-print(db_host)
-
 
 def fetch_max_duration_data():
     select_max_duration_query = """
@@ -56,8 +42,8 @@ def fetch_max_duration_data():
     YEAR(date) as max_year, 
     date as max_date, 
     time as max_time
-    from extra_staff.notes
-    order by id desc, year(date) desc, date desc, time desc
+    from extra_staff.test
+    order by year(date) desc, date desc, time desc
     """
     conn_str = (
             f"DRIVER={{{azure_sql_config['driver']}}};"
@@ -89,9 +75,11 @@ SELECT
     Time,
     Name
 FROM notes 
-WHERE YEAR(Date) >= '{max_year}'
-AND concat(date, ' ', time) > '{max_date_time}'
-AND YEAR(Date) NOT IN (5520, 2035)
+WHERE 1=1
+AND YEAR(Date) = 2025
+--AND YEAR(Date) >= '{max_year}'
+--AND concat(date, ' ', time) > '{max_date_time}'
+--AND YEAR(Date) NOT IN (5520, 2035)
 """
 
 print(mysql_query)
