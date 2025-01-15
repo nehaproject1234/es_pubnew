@@ -13,7 +13,7 @@ mysql_config = {
     "host": os.environ.get("MSH"),       
     "user": os.environ.get("MSU"),       
     "password": os.environ.get("MSP"),  
-    "database": os.environ.get("MSD"),  
+    "database": os.environ.get("MSN"),  
 }
 
 # Configuration
