@@ -11,24 +11,24 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # MySQL Configuration
 mysql_config = {
     "host": "127.0.0.1",       # e.g., "localhost" or IP
-    "user": "extrastaff_powerbi",       # MySQL username
-    "password": "N8Y!(2]NGuUOhGhR", # MySQL password
-    "database": "extrastaff_rol_ai",     # MySQL database name
+    "user": "",       # MySQL username
+    "password": "", # MySQL password
+    "database": "",     # MySQL database name
 }
 
 # Configuration
 # Configuration
-ssh_host = "13.236.27.200"  # SSH server (bastion host) IP
-ssh_user = "forge"   # SSH username (e.g., ec2-user)
+ssh_host = ""  # SSH server (bastion host) IP
+ssh_user = ""   # SSH username (e.g., ec2-user)
 ssh_key_path = os.environ.get("SSH_KEY_PATH", "./neha_key.pem")
-db_host = "rol-nz-replica.c1tua57r6j6p.ap-southeast-2.rds.amazonaws.com"
+db_host = "rds"
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": "extrastaff-sales.database.windows.net",
-    "database": "extrastaff_sales",
-    "username": "dev-user",
-    "password": "Nboml@2022",
+    "server": "",
+    "database": "",
+    "username": "",
+    "password": "",
     "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
 }
 
