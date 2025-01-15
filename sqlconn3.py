@@ -42,7 +42,7 @@ def fetch_max_duration_data():
     YEAR(date) as max_year, 
     date as max_date, 
     time as max_time
-    from extra_staff.test
+    from extra_staff.notes
     order by year(date) desc, date desc, time desc
     """
     conn_str = (
@@ -75,7 +75,9 @@ SELECT
     Time,
     Name
 FROM notes 
-WHERE YEAR(Date) = 2025
+WHERE YEAR(Date) >= '{max_year}'
+AND concat(date, ' ', time) > '{max_date_time}'
+AND YEAR(Date) NOT IN (5520, 2035)
 """
 
 print(mysql_query)
