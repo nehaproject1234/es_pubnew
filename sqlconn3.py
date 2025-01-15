@@ -75,11 +75,7 @@ SELECT
     Time,
     Name
 FROM notes 
-WHERE 1=1
-AND YEAR(Date) = 2025
---AND YEAR(Date) >= '{max_year}'
---AND concat(date, ' ', time) > '{max_date_time}'
---AND YEAR(Date) NOT IN (5520, 2035)
+WHERE YEAR(Date) = 2025
 """
 
 print(mysql_query)
