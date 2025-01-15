@@ -19,8 +19,8 @@ mysql_config = {
 # Configuration
 ssh_host = os.environ.get("SSH")  
 ssh_user = os.environ.get("SSU") 
-ssh_key_path = os.environ.get("SSH_KEY_PATH") 
-db_host = "--"
+ssh_key_path = os.environ.get("SSH_KEY_PATH", "./ssh_key.pem") 
+db_host = os.environ.get("DBH")  # Retrieve DB host from environment variables
 
 # Azure SQL Configuration
 azure_sql_config = {
