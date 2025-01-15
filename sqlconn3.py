@@ -10,25 +10,25 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # MySQL Configuration
 mysql_config = {
-    "host": "--",       # e.g., "localhost" or IP
-    "user": "--",       # MySQL username
-    "password": "--", # MySQL password
-    "database": "--",     # MySQL database name
+    "host": os.environ.get("MSH"),       
+    "user": os.environ.get("MSU"),       
+    "password": os.environ.get("MSP"),  
+    "database": os.environ.get("MSD"),  
 }
 
 # Configuration
-ssh_host = "--"  # SSH server (bastion host) IP
-ssh_user = "--"   # SSH username (e.g., ec2-user)
-ssh_key_path = os.environ.get('SSH_KEY_PATH', './neha_key.pem')
+ssh_host = os.environ.get("SSH")  
+ssh_user = os.environ.get("SSU") 
+ssh_key_path = os.environ.get("SSH_KEY_PATH") 
 db_host = "--"
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": "extrastaff-sals",
-    "database": "--",
-    "username": "--",
-    "password": "--",
-    "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
+    "server": os.environ.get("ASS"),     # Azure SQL server name
+    "database": os.environ.get("ASD"), # Azure SQL database name
+    "username": os.environ.get("ASU"), # Azure SQL username
+    "password": os.environ.get("ASP"), # Azure SQL password
+    "driver": "ODBC Driver 17 for SQL Server",        # Ensure this driver is installed
 }
 
 # Azure SQL Table Name
