@@ -35,14 +35,28 @@ azure_sql_config = {
 azure_table_name = "extra_staff.notes"
 batch_size = 1000  # Number of rows per batch
 
+# check credentials
+print(mysql_config["host"])
+print(mysql_config["user"])
+print(mysql_config["password"])
+print(mysql_config["database"])
+print(azure_sql_config["server"])
+print(azure_sql_config["database"])
+print(azure_sql_config["username"])
+print(azure_sql_config["password"])
+print(ssh_host)
+print(ssh_key_path)
+print(ssh_user)
+print(db_host)
+
+
 def fetch_max_duration_data():
     select_max_duration_query = """
     SELECT top 1
-    id as max_id,
     YEAR(date) as max_year, 
     date as max_date, 
     time as max_time
-    from extra_staff.test
+    from extra_staff.notes
     order by id desc, year(date) desc, date desc, time desc
     """
     conn_str = (
@@ -58,13 +72,12 @@ def fetch_max_duration_data():
             cursor.execute(select_max_duration_query)
 
             max_duration_query_result = cursor.fetchone()
-            max_id = max_duration_query_result.max_id
             max_year = max_duration_query_result.max_year
             max_date_time = str(max_duration_query_result.max_date) + ' ' + str(max_duration_query_result.max_time)
             
-            return max_id, max_year, max_date_time
+            return max_year, max_date_time
             
-max_id, max_year, max_date_time = fetch_max_duration_data()
+max_year, max_date_time = fetch_max_duration_data()
 
 # Query to fetch data from MySQL
 mysql_query = f"""
@@ -78,7 +91,6 @@ SELECT
 FROM notes 
 WHERE YEAR(Date) >= '{max_year}'
 AND concat(date, ' ', time) > '{max_date_time}'
-AND id > max_id
 AND YEAR(Date) NOT IN (5520, 2035)
 """
 
