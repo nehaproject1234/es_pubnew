@@ -1,72 +1,62 @@
-name: Connect via VPN and Run Workflow
+name: Connect to Azure SQL and Run Workflow
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
-  vpn-job:
+  azure-sql-job:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the Code
+      # 1. Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Install OpenVPN
+      # 2. Install OpenVPN (if needed)
       - name: Install OpenVPN
         run: sudo apt-get install -y openvpn
 
-      # 3. Create VPN Config File
-      - name: Create VPN Config File
-        run: echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
-
-      # 4. Create auth.txt for VPN Credentials
-      - name: Create auth.txt
-        run: |
-          echo "${{ secrets.VU }}" > auth.txt
-          echo "${{ secrets.VP }}" >> auth.txt
-
-      # 5. Start VPN Connection
+      # 3. Start VPN Connection (optional)
       - name: Start VPN Connection
         run: |
           sudo openvpn --config vpn_config.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
-      # 6. Install ODBC Driver for Azure SQL
+      # 4. Install ODBC Driver for Azure SQL
       - name: Install ODBC Driver 17
         run: |
-          # Add Microsoft packages repository
           curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          # Add Microsoft's public key using gpg
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft.gpg
-          # Update package index
           sudo apt-get update
-          # Install ODBC Driver and UnixODBC
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
           sudo apt-get install -y unixodbc-dev
 
-      # 7. Create SSH Key File
+      # 5. Create SSH Key File
       - name: Create SSH Key File
         run: echo "${{ secrets.SSH_KEY }}" > ssh_key.pem
 
-      # 8. Set Permissions for SSH Key
+      # 6. Set Permissions for SSH Key
       - name: Set Permissions for SSH Key
         run: chmod 600 ssh_key.pem
 
-      # 9. Set Up Python
+      # 7. Set Up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Use your Python version
+          python-version: '3.9'
 
-      # 10. Install Dependencies
+      # 8. Install Dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+
+      # 9. Debug Azure Secrets
+      - name: Debug Azure Secrets (Optional)
+        run: |
+          echo "Azure Server: ${{ secrets.ASS }}"
+          echo "Azure Database: ${{ secrets.ASD }}"
+          echo "Azure Username: ${{ secrets.ASU }}"
 
       # 11. Run Python Script
       - name: Run Python Script
