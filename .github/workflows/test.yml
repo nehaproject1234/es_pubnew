@@ -1,4 +1,4 @@
-name: Connect to Azure SQL and Run Workflow
+name: try Connect to Azure SQL and Run Workflow
 
 on:
   workflow_dispatch:
