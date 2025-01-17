@@ -1,4 +1,4 @@
-name: try Connect to Azure SQL and Run Workflow
+name: Connect to Azure SQL and Run Workflow
 
 on:
   workflow_dispatch:
@@ -11,11 +11,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Create SSH Key File
-        run: echo "${{ secrets.SSH_KEY }}" > ssh_key.pem
+      - name: Install ODBC Driver 17
+        run: |
+          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
+          sudo apt-get install -y unixodbc-dev
 
-      - name: Set Permissions for SSH Key
-        run: chmod 600 ssh_key.pem
+      - name: Verify Installed ODBC Drivers
+        run: odbcinst -q -d
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -29,3 +34,8 @@ jobs:
 
       - name: Run Python Script
         run: python sqlconn3.py
+        env:
+          AZURE_SQL_SERVER: ${{ secrets.ASS }}
+          AZURE_SQL_DATABASE: ${{ secrets.ASD }}
+          AZURE_SQL_USERNAME: ${{ secrets.ASU }}
+          AZURE_SQL_PASSWORD: ${{ secrets.ASP }}
