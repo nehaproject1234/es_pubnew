@@ -1,0 +1,31 @@
+name: Connect to Azure SQL and Run Workflow
+
+on:
+  workflow_dispatch:
+
+jobs:
+  azure-sql-job:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Create SSH Key File
+        run: echo "${{ secrets.SSH_KEY }}" > ssh_key.pem
+
+      - name: Set Permissions for SSH Key
+        run: chmod 600 ssh_key.pem
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Python Script
+        run: python sqlconn3.py
