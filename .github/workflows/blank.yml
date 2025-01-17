@@ -43,7 +43,13 @@ jobs:
         run: |
           sudo openvpn --config ROL_neha.mawal_RecruitOnline.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
-
+      - name: Install ODBC Driver 17
+        run: |
+            curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -
+            curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list
+            apt-get update
+            ACCEPT_EULA=Y apt-get install -y msodbcsql17
+            apt-get install -y unixodbc-dev
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
