@@ -12,37 +12,41 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Install OpenVPN
+      # 2. Create SSH Key File from GitHub Secrets
+      - name: Create SSH Key File
+        run: echo "${{ secrets.SSH_KEY }}" > ssh_key.pem
+
+      # 3. Set Permissions for SSH Key
+      - name: Set Permissions for SSH Key
+        run: chmod 600 ssh_key.pem
+
+      # 4. Install OpenVPN
       - name: Install OpenVPN
         run: sudo apt-get install -y openvpn
 
-      # 3. Create VPN Config File
+      # 5. Create VPN Config File from Secrets
       - name: Create VPN Config File
         run: echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
 
-      # 4. Create auth.txt for VPN Credentials
+      # 6. Create VPN Credentials (auth.txt) from Secrets
       - name: Create auth.txt
         run: |
           echo "${{ secrets.VU }}" > auth.txt
           echo "${{ secrets.VP }}" >> auth.txt
 
-      # 5. Set Permissions for VPN Config and auth.txt
-      - name: Set Permissions for VPN Config
+      # 7. Set Permissions for VPN Config and auth.txt
+      - name: Set Permissions for VPN Config and Credentials
         run: |
           chmod 600 vpn_config.ovpn
           chmod 600 auth.txt
 
-      # 6. Debug - List Files
-      - name: Debug - List Files
-        run: ls -l
-
-      # 7. Start VPN Connection
+      # 8. Start VPN Connection
       - name: Start VPN Connection
         run: |
           sudo openvpn --config vpn_config.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
-      # 8. Install ODBC Driver for Azure SQL
+      # 9. Install Required Dependencies (e.g., ODBC Driver 17)
       - name: Install ODBC Driver 17
         run: |
           curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
@@ -51,33 +55,35 @@ jobs:
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
           sudo apt-get install -y unixodbc-dev
 
-      # 9. Create SSH Key File
-      - name: Create SSH Key File
-        run: echo "${{ secrets.SSH_KEY }}" > ssh_key.pem
+      # 10. Fetch GitHub Runner IP
+      - name: Fetch GitHub Runner IP
+        run: |
+          echo "Runner IP: $(curl -s ifconfig.me)"
 
-      # 10. Set Permissions for SSH Key
-      - name: Set Permissions for SSH Key
-        run: chmod 600 ssh_key.pem
+      # 11. Dynamically Allow IP in Azure SQL
+      - name: Add Azure IP Rule
+        run: |
+          az login --service-principal -u ${{ secrets.AZURE_CLIENT_ID }} -p ${{ secrets.AZURE_CLIENT_SECRET }} --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az sql server firewall-rule create --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --server ${{ secrets.AZURE_SQL_SERVER }} --name "GitHubRunnerIP" --start-ip-address $(curl -s ifconfig.me) --end-ip-address $(curl -s ifconfig.me)
 
-      # 11. Set Up Python
+      # 12. Set Up Python Environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # 12. Install Dependencies
-      - name: Install dependencies
+      # 13. Install Python Dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 13. Run Python Script
+      # 14. Run Python Script
       - name: Run Python Script
         run: python sqlconn3.py
         env:
           SSH_HOST: ${{ secrets.SSH }}
-          SSH_USER: ${{ secrets.SSU}}
-          SSH_KEY_PATH: ./ssh_key.pem
+          SSH_USER: ${{ secrets.SSU }}
           DB_HOST: ${{ secrets.MSH }}
           DB_USER: ${{ secrets.MSU }}
           DB_PASSWORD: ${{ secrets.MSP }}
@@ -86,3 +92,8 @@ jobs:
           AZURE_SQL_DATABASE: ${{ secrets.ASD }}
           AZURE_SQL_USERNAME: ${{ secrets.ASU }}
           AZURE_SQL_PASSWORD: ${{ secrets.ASP }}
+
+      # 15. Remove Azure IP Rule (Cleanup Step)
+      - name: Remove Azure IP Rule
+        run: |
+          az sql server firewall-rule delete --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} --server ${{ secrets.AZURE_SQL_SERVER }} --name "GitHubRunnerIP"
