@@ -7,8 +7,8 @@ idna==3.10
 mysql==0.0.3
 mysql-connector-python==9.1.0
 mysqlclient==2.2.6
-numpy==2.2.1
-pandas==2.2.3
+numpy==1.24.3  # Updated to be compatible with Python 3.9
+pandas==1.5.3  # Updated to be compatible with Python 3.9
 paramiko==3.5.0
 pycparser==2.22
 PyMySQL==1.1.1
