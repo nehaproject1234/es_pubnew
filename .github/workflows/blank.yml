@@ -78,7 +78,7 @@ jobs:
           DB_USER: ${{ secrets.MSU }}
           DB_PASSWORD: ${{ secrets.MSP }}
           DB_NAME: ${{ secrets.MSN }}
-          AZURE_SQL_SERVER: ${{ secrets.ASS }}
-          AZURE_SQL_DATABASE: ${{ secrets.ASD }}
-          AZURE_SQL_USERNAME: ${{ secrets.ASU }}
-          AZURE_SQL_PASSWORD: ${{ secrets.ASP }}
+          AZURE_SQL_SERVER: ${{ secrets.AZURE_SERVER }}
+          AZURE_SQL_DATABASE: ${{ secrets.AZURE_DATABASE }}
+          AZURE_SQL_USERNAME: ${{ secrets.AZURE_USER }}
+          AZURE_SQL_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
