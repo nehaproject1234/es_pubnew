@@ -5,6 +5,9 @@ import pandas as pd
 import logging
 from sshtunnel import SSHTunnelForwarder
 
+dbh = os.getenv("DBH")
+print(dbh)
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
