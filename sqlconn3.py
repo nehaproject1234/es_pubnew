@@ -6,7 +6,9 @@ import logging
 from sshtunnel import SSHTunnelForwarder
 
 dbh = os.getenv("DBH")
+print("the value for dbh is")
 print(dbh)
+print("the value for dbh is")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
