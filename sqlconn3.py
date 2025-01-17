@@ -5,35 +5,30 @@ import pandas as pd
 import logging
 from sshtunnel import SSHTunnelForwarder
 
-dbh = os.getenv("DBH")
-print("the value for dbh is")
-print(dbh)
-print("the value for dbh is")
-
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # MySQL Configuration
 mysql_config = {
-    "host": "127.0.0.1",       # e.g., "localhost" or IP
-    "user": "",       # MySQL username
-    "password": "", # MySQL password
-    "database": "",     # MySQL database name
+    "host": os.getenv("MSH"),       # e.g., "localhost" or IP
+    "user": os.getenv("MSU"),       # MySQL username
+    "password": os.getenv("MSP"), # MySQL password
+    "database": os.getenv("MSN"),     # MySQL database name
 }
 
 # Configuration
 # Configuration
-ssh_host = ""  # SSH server (bastion host) IP
-ssh_user = ""   # SSH username (e.g., ec2-user)
+ssh_host = os.getenv("SSH")  # SSH server (bastion host) IP
+ssh_user = os.getenv("SSU")   # SSH username (e.g., ec2-user)
 ssh_key_path = os.environ.get("SSH_KEY_PATH", "./neha_key.pem")
-db_host = "rds"
+db_host = os.getenv("DBH")
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": "",
-    "database": "",
-    "username": "",
-    "password": "",
+    "server": os.getenv("ASS"),
+    "database": os.getenv("ASD"),
+    "username": os.getenv("ASU"),
+    "password": os.getenv("ASP"),
     "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
 }
 
