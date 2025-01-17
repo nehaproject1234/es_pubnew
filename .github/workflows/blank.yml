@@ -43,4 +43,14 @@ jobs:
         env:
           SSH_KEY_PATH: ./neha_key.pem
           DBH: ${{secrets.DBH}}
+          ASU: ${{secrets.ASU}}
+          ASD: ${{secrets.ASD}}
+          ASS: ${{secrets.ASS}}
+          ASP: ${{secrets.ASP}}
+          MSU: ${{secrets.MSU}}
+          MSN: ${{secrets.MSN}}
+          MSH: ${{secrets.MSH}}
+          MSP: ${{secrets.MSP}}
+          SSH: ${{secrets.SSH}}
+          SSU: ${{secrets.SSU}}
         run: python sqlconn3.py
