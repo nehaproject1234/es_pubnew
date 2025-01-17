@@ -8,7 +8,21 @@ on:
 permissions:
   contents: read
   checks: read
-  
+
+env:
+    SSH_KEY_PATH: ./neha_key.pem
+    DBH: ${{secrets.DBH}}
+    ASU: ${{secrets.ASU}}
+    ASD: ${{secrets.ASD}}
+    ASS: ${{secrets.ASS}}
+    ASP: ${{secrets.ASP}}
+    MSU: ${{secrets.MSU}}
+    MSN: ${{secrets.MSN}}
+    MSH: ${{secrets.MSH}}
+    MSP: ${{secrets.MSP}}
+    SSH: ${{secrets.SSH}}
+    SSU: ${{secrets.SSU}}
+
 jobs:
   vpn-job:
     runs-on: ubuntu-latest
@@ -40,17 +54,4 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt # Ensure your repo has a requirements.txt
       - name: Run Python Script
-        env:
-          SSH_KEY_PATH: ./neha_key.pem
-          DBH: ${{secrets.DBH}}
-          ASU: ${{secrets.ASU}}
-          ASD: ${{secrets.ASD}}
-          ASS: ${{secrets.ASS}}
-          ASP: ${{secrets.ASP}}
-          MSU: ${{secrets.MSU}}
-          MSN: ${{secrets.MSN}}
-          MSH: ${{secrets.MSH}}
-          MSP: ${{secrets.MSP}}
-          SSH: ${{secrets.SSH}}
-          SSU: ${{secrets.SSU}}
         run: python sqlconn3.py
