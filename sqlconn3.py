@@ -25,10 +25,10 @@ db_host = os.environ.get("DBH")
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": os.environ.get("ASS"),
-    "database": os.environ.get("ASD"),
-    "username": os.environ.get("ASU"),
-    "password": os.environ.get("ASP"),
+    "server": os.environ.get("AZURE_SERVER"),
+    "database": os.environ.get("AZURE_DATABASE"),
+    "username": os.environ.get("AZURE_USER"),
+    "password": os.environ.get("AZURE_PASSWORD"),
     "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
 }
 
