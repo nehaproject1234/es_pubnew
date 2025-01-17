@@ -50,10 +50,13 @@ jobs:
       - name: Install ODBC Driver 17
         run: |
           curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft.gpg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
           sudo apt-get install -y unixodbc-dev
+
+      - name: Verify Installed ODBC Drivers
+        run: odbcinst -q -d
 
       # 10. Set Up Python Environment
       - name: Set up Python
