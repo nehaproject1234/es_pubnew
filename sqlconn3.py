@@ -10,25 +10,25 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # MySQL Configuration
 mysql_config = {
-    "host": os.getenv("MSH"),       # e.g., "localhost" or IP
-    "user": os.getenv("MSU"),       # MySQL username
-    "password": os.getenv("MSP"), # MySQL password
-    "database": os.getenv("MSN"),     # MySQL database name
+    "host": os.environ("MSH"),       # e.g., "localhost" or IP
+    "user": os.environ("MSU"),       # MySQL username
+    "password": os.environ("MSP"), # MySQL password
+    "database": os.environ("MSN"),     # MySQL database name
 }
 
 # Configuration
 # Configuration
-ssh_host = os.getenv("SSH")  # SSH server (bastion host) IP
-ssh_user = os.getenv("SSU")   # SSH username (e.g., ec2-user)
+ssh_host = os.environ("SSH")  # SSH server (bastion host) IP
+ssh_user = os.environ("SSU")   # SSH username (e.g., ec2-user)
 ssh_key_path = os.environ.get("SSH_KEY_PATH", "./neha_key.pem")
-db_host = os.getenv("DBH")
+db_host = os.environ("DBH")
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": os.getenv("ASS"),
-    "database": os.getenv("ASD"),
-    "username": os.getenv("ASU"),
-    "password": os.getenv("ASP"),
+    "server": os.environ("ASS"),
+    "database": os.environ("ASD"),
+    "username": os.environ("ASU"),
+    "password": os.environ("ASP"),
     "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
 }
 
