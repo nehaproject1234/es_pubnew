@@ -8,80 +8,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout the code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Create SSH Key File from GitHub Secrets
       - name: Create SSH Key File
         run: echo "${{ secrets.SSH_KEY }}" > ssh_key.pem
 
-      # 3. Set Permissions for SSH Key
       - name: Set Permissions for SSH Key
         run: chmod 600 ssh_key.pem
 
-      # 4. Install OpenVPN
       - name: Install OpenVPN
         run: sudo apt-get install -y openvpn
 
-      # 5. Create VPN Config File from Secrets
       - name: Create VPN Config File
         run: echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
 
-      # 6. Create VPN Credentials (auth.txt) from Secrets
-      - name: Create auth.txt
-        run: |
-          echo "${{ secrets.VU }}" > auth.txt
-          echo "${{ secrets.VP }}" >> auth.txt
-
-      # 7. Set Permissions for VPN Config and Credentials
-      - name: Set Permissions for VPN Config and Credentials
-        run: |
-          chmod 600 vpn_config.ovpn
-          chmod 600 auth.txt
-
-      # 8. Start VPN Connection
       - name: Start VPN Connection
         run: |
-          sudo openvpn --config vpn_config.ovpn --auth-user-pass auth.txt --daemon
-          sleep 10  # Wait for the VPN to establish
+          sudo openvpn --config vpn_config.ovpn --auth-user-pass <(echo -e "${{ secrets.VU }}\n${{ secrets.VP }}") --daemon
+          sleep 10
 
-      # 9. Install Required Dependencies (e.g., ODBC Driver 17)
       - name: Install ODBC Driver 17
         run: |
           curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/microsoft.gpg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
-          sudo apt-get install -y unixodbc unixodbc-dev
+          sudo apt-get install -y unixodbc-dev
 
-      # 10. Verify Installed ODBC Drivers
       - name: Verify Installed ODBC Drivers
         run: odbcinst -q -d
 
-      # 11. Set Up Python Environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # 12. Install Python Dependencies
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 13. Run Python Script
       - name: Run Python Script
         run: python sqlconn3.py
         env:
-          SSH_HOST: ${{ secrets.SSH }}
-          SSH_USER: ${{ secrets.SSU }}
-          DB_HOST: ${{ secrets.MSH }}
-          DB_USER: ${{ secrets.MSU }}
-          DB_PASSWORD: ${{ secrets.MSP }}
-          DB_NAME: ${{ secrets.MSN }}
-          AZURE_SQL_SERVER: ${{ secrets.AZURE_SERVER }}
-          AZURE_SQL_DATABASE: ${{ secrets.AZURE_DATABASE }}
-          AZURE_SQL_USERNAME: ${{ secrets.AZURE_USER }}
-          AZURE_SQL_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
+          AZURE_SERVER: ${{ secrets.AZURE_SERVER }}
+          AZURE_DATABASE: ${{ secrets.AZURE_DATABASE }}
+          AZURE_USER: ${{ secrets.AZURE_USER }}
+          AZURE_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
+          SSH: ${{ secrets.SSH }}
+          SSU: ${{ secrets.SSU }}
+          MSH: ${{ secrets.MSH }}
+          MSU: ${{ secrets.MSU }}
+          MSP: ${{ secrets.MSP }}
+          MSN: ${{ secrets.MSN }}
