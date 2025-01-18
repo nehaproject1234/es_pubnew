@@ -6,17 +6,18 @@ import logging
 from sshtunnel import SSHTunnelForwarder
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-# Log Environment Variables
-logging.info("Environment Variables:")
+# Debug environment variables
+logging.info(f"AZURE_SERVER: {os.environ.get('AZURE_SERVER')}")
+logging.info(f"AZURE_DATABASE: {os.environ.get('AZURE_DATABASE')}")
+logging.info(f"AZURE_USER: {os.environ.get('AZURE_USER')}")
+logging.info(f"AZURE_PASSWORD: {os.environ.get('AZURE_PASSWORD')}")
 logging.info(f"SSH_HOST: {os.environ.get('SSH')}")
-logging.info(f"SSH_USER: {os.environ.get('SSU')}")
-logging.info(f"DB_HOST: {os.environ.get('MSH')}")
-logging.info(f"DB_USER: {os.environ.get('MSU')}")
-logging.info(f"AZURE_SQL_SERVER: {os.environ.get('AZURE_SERVER')}")
-logging.info(f"AZURE_SQL_DATABASE: {os.environ.get('AZURE_DATABASE')}")
-logging.info(f"AZURE_SQL_USERNAME: {os.environ.get('AZURE_USER')}")
+logging.info(f"DB_HOST: {os.environ.get('DBH')}")
+logging.info(f"MYSQL_USER: {os.environ.get('MSU')}")
+logging.info(f"MYSQL_PASSWORD: {os.environ.get('MSP')}")
+logging.info(f"MYSQL_DB: {os.environ.get('MSN')}")
 
 # MySQL Configuration
 mysql_config = {
@@ -43,127 +44,105 @@ azure_sql_config = {
 
 # Azure SQL Table Name
 azure_table_name = "extra_staff.notes"
-batch_size = 1000  # Number of rows per batch
+batch_size = 1000
 
 def fetch_max_duration_data():
-    """Fetch the max date and time from Azure SQL."""
-    select_max_duration_query = """
-    SELECT TOP 1
-    YEAR(date) as max_year, 
-    date as max_date, 
-    time as max_time
-    FROM extra_staff.notes
-    ORDER BY YEAR(date) DESC, date DESC, time DESC
-    """
-
-    # Build connection string
+    """Fetch max duration data from Azure SQL."""
+    logging.info("Starting data processing workflow...")
     conn_str = (
         f"DRIVER={{{azure_sql_config['driver']}}};"
         f"SERVER={azure_sql_config['server']};"
         f"DATABASE={azure_sql_config['database']};"
         f"UID={azure_sql_config['username']};"
-        f"PWD={azure_sql_config['password']}"
+        f"PWD={azure_sql_config['password']};"
     )
-
-    logging.info("Azure SQL Connection String:")
-    logging.info(conn_str)
-
+    logging.info(f"Azure SQL Connection String: {conn_str}")
     try:
         with pyodbc.connect(conn_str) as azure_conn:
-            logging.info("Connected to Azure SQL successfully.")
             cursor = azure_conn.cursor()
+            select_max_duration_query = """
+            SELECT TOP 1
+            YEAR(date) AS max_year,
+            date AS max_date,
+            time AS max_time
+            FROM extra_staff.notes
+            ORDER BY YEAR(date) DESC, date DESC, time DESC
+            """
             cursor.execute(select_max_duration_query)
-
             max_duration_query_result = cursor.fetchone()
             max_year = max_duration_query_result.max_year
-            max_date_time = f"{max_duration_query_result.max_date} {max_duration_query_result.max_time}"
-            logging.info(f"Max Year: {max_year}, Max DateTime: {max_date_time}")
+            max_date_time = str(max_duration_query_result.max_date) + " " + str(max_duration_query_result.max_time)
             return max_year, max_date_time
-    except pyodbc.Error as e:
-        logging.error(f"Error connecting to Azure SQL: {e}", exc_info=True)
-        raise
+    except Exception as e:
+        logging.error(f"Error connecting to Azure SQL: {e}")
+        raise e
 
-def fetch_mysql_data():
-    """Fetch data from MySQL using pymysql and return as a DataFrame."""
+def fetch_mysql_data(max_year, max_date_time):
+    """Fetch data from MySQL."""
+    mysql_query = f"""
+    SELECT id, Creator_Id, Type, Date, Time, Name
+    FROM notes
+    WHERE YEAR(Date) >= '{max_year}'
+    AND CONCAT(date, ' ', time) > '{max_date_time}'
+    AND YEAR(Date) NOT IN (5520, 2035)
+    """
     try:
-        # Start SSH Tunnel
-        logging.info("Establishing SSH Tunnel...")
         with SSHTunnelForwarder(
             (ssh_host, 22),
             ssh_username=ssh_user,
             ssh_private_key=ssh_key_path,
             remote_bind_address=(db_host, 3306)
         ) as tunnel:
-            logging.info(f"SSH Tunnel established at port: {tunnel.local_bind_port}")
-            
-            # Connect to MySQL
             connection = pymysql.connect(
-                host="127.0.0.1",
+                host=mysql_config['host'],
                 port=tunnel.local_bind_port,
-                user=mysql_config["user"],
-                password=mysql_config["password"],
-                database=mysql_config["database"]
+                user=mysql_config['user'],
+                password=mysql_config['password'],
+                database=mysql_config['database']
             )
-            logging.info("Connected to MySQL successfully.")
-            
-            # Fetch data
-            query = f"""
-            SELECT id, Creator_Id, Type, Date, Time, Name
-            FROM notes 
-            WHERE YEAR(Date) >= '{max_year}'
-            AND CONCAT(date, ' ', time) > '{max_date_time}'
-            AND YEAR(Date) NOT IN (5520, 2035)
-            """
-            logging.info("MySQL Query:")
-            logging.info(query)
-            df = pd.read_sql(query, connection)
+            logging.info("Connected to MySQL.")
+            df = pd.read_sql(mysql_query, connection)
+            df['Time'] = df['Time'].apply(lambda x: str(x).split('days')[-1])
             logging.info(f"Fetched {len(df)} rows from MySQL.")
             return df
     except Exception as e:
-        logging.error(f"Error in MySQL connection or fetching data: {e}", exc_info=True)
+        logging.error(f"Error fetching data from MySQL: {e}")
         return None
 
 def upload_to_azure_sql(df):
-    """Upload a DataFrame to Azure SQL in batches."""
+    """Upload data to Azure SQL."""
     try:
         conn_str = (
             f"DRIVER={{{azure_sql_config['driver']}}};"
             f"SERVER={azure_sql_config['server']};"
             f"DATABASE={azure_sql_config['database']};"
             f"UID={azure_sql_config['username']};"
-            f"PWD={azure_sql_config['password']}"
+            f"PWD={azure_sql_config['password']};"
         )
         with pyodbc.connect(conn_str) as azure_conn:
             cursor = azure_conn.cursor()
-            logging.info("Connected to Azure SQL.")
-            
-            # Prepare batch insert query
             columns = ", ".join(df.columns)
             placeholders = ", ".join(["?"] * len(df.columns))
             query = f"INSERT INTO {azure_table_name} ({columns}) VALUES ({placeholders})"
-            
-            # Insert data in batches
             for start in range(0, len(df), batch_size):
-                end = start + batch_size
-                batch = df.iloc[start:end]
+                batch = df.iloc[start : start + batch_size]
                 data = [tuple(row) for row in batch.to_numpy()]
                 cursor.executemany(query, data)
-                logging.info(f"Inserted rows {start} to {end - 1} into Azure SQL.")
             azure_conn.commit()
-    except pyodbc.Error as e:
-        logging.error(f"Error uploading data to Azure SQL: {e}", exc_info=True)
-        raise
+            logging.info("Data uploaded successfully to Azure SQL.")
+    except Exception as e:
+        logging.error(f"Error uploading data to Azure SQL: {e}")
 
 def main():
-    """Main workflow."""
-    logging.info("Starting data processing workflow...")
-    global max_year, max_date_time
-    max_year, max_date_time = fetch_max_duration_data()
-    df = fetch_mysql_data()
-    if df is not None and not df.empty:
-        upload_to_azure_sql(df)
-    else:
-        logging.warning("No data to upload. MySQL fetch returned empty or None.")
+    try:
+        max_year, max_date_time = fetch_max_duration_data()
+        df = fetch_mysql_data(max_year, max_date_time)
+        if df is not None and not df.empty:
+            upload_to_azure_sql(df)
+        else:
+            logging.warning("No data to upload.")
+    except Exception as e:
+        logging.error(f"Error in main workflow: {e}")
 
 if __name__ == "__main__":
     main()
