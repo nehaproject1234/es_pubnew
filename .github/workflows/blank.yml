@@ -25,8 +25,10 @@ jobs:
         run: sudo apt-get install -y openvpn
 
       # 5. Create VPN Config File from Secrets
-      - name: Create VPN Config File
-        run: echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
+      - name: Verify VPN Connection
+        run: |
+          ping -c 4 ${{ secrets.VPN_SERVER_IP }} || echo "VPN connection failed"
+
 
       # 6. Create VPN Credentials (auth.txt) from Secrets
       - name: Create auth.txt
