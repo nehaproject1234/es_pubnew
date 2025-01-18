@@ -40,3 +40,14 @@ jobs:
         run: python sqlconn3.py
         env:
           SSH_KEY_PATH: ./neha_key.pem
+          SSH_HOST: = ${{ secrets.SSH }}
+          SSH_USER: ${{ secrets.SSU }}
+          DBH_HOST: ${{ secrets.DBH }}
+          DB_HOST: ${{ secrets.MSH }}
+          DB_USER: ${{ secrets.MSU }}
+          DB_PASSWORD: ${{ secrets.MSP }}
+          DB_NAME: ${{ secrets.MSN }}
+          AZURE_SQL_SERVER: ${{ secrets.ASS }}
+          AZURE_SQL_DATABASE: ${{ secrets.ASD }}
+          AZURE_SQL_USERNAME: ${{ secrets.ASU }}
+          AZURE_SQL_PASSWORD: ${{ secrets.ASP }}
