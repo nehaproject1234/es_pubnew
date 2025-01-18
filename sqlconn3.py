@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logging.info(f"AZURE_SERVER: {os.environ.get('AZURE_SERVER')}")
 logging.info(f"AZURE_DATABASE: {os.environ.get('AZURE_DATABASE')}")
 logging.info(f"AZURE_USER: {os.environ.get('AZURE_USER')}")
-logging.info(f"AZURE_PASSWORD: {os.environ.get('AZURE_PASSWORD')}")
+logging.info(f"AZURE_PASSWORD: {os.environ.get('AZURE_PASSOWRD')}")
 logging.info(f"SSH_HOST: {os.environ.get('SSH')}")
 logging.info(f"DB_HOST: {os.environ.get('DBH')}")
 logging.info(f"MYSQL_USER: {os.environ.get('MSU')}")
@@ -38,7 +38,7 @@ azure_sql_config = {
     "server": os.environ.get("AZURE_SERVER"),
     "database": os.environ.get("AZURE_DATABASE"),
     "username": os.environ.get("AZURE_USER"),
-    "password": os.environ.get("AZURE_PASSWORD"),
+    "password": os.environ.get("AZURE_PASSOWRD"),
     "driver": "ODBC Driver 17 for SQL Server",
 }
 
