@@ -5,12 +5,14 @@ import pandas as pd
 import logging
 from sshtunnel import SSHTunnelForwarder
 
+MSH = os.environ["MSH"]
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # MySQL Configuration
 mysql_config = {
-    "host": "127.0.0.1",       # e.g., "localhost" or IP
+    "host": MSH,       # e.g., "localhost" or IP
     "user": "extrastaff_powerbi",       # MySQL username
     "password": "N8Y!(2]NGuUOhGhR", # MySQL password
     "database": "extrastaff_rol_ai",     # MySQL database name
