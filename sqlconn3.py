@@ -6,6 +6,19 @@ import logging
 from sshtunnel import SSHTunnelForwarder
 
 MSH = os.environ["MSH"]
+MSU = os.environ["MSU"]
+MSP = os.environ["MSP"]
+MSN = os.environ["MSN"]
+
+SSH = os.environ["SSH"]
+SSU = os.environ["SSU"]
+DBH = os.environ["DBH"]
+
+ASS = os.environ["ASS"]
+ASD = os.environ["ASD"]
+ASU = os.environ["ASU"]
+ASP = os.environ["ASP"]
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -13,24 +26,24 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # MySQL Configuration
 mysql_config = {
     "host": MSH,       # e.g., "localhost" or IP
-    "user": "extrastaff_powerbi",       # MySQL username
-    "password": "N8Y!(2]NGuUOhGhR", # MySQL password
-    "database": "extrastaff_rol_ai",     # MySQL database name
+    "user":MSU,       # MySQL username
+    "password": MSP, # MySQL password
+    "database": MSN,     # MySQL database name
 }
 
 # Configuration
 # Configuration
-ssh_host = "13.236.27.200" # SSH server (bastion host) IP
-ssh_user = "forge"   # SSH username (e.g., ec2-user)
+ssh_host = SSH # SSH server (bastion host) IP
+ssh_user = SSU   # SSH username (e.g., ec2-user)
 ssh_key_path = os.environ.get("SSH_KEY_PATH", "./neha_key.pem")
-db_host = "rol-nz-replica.c1tua57r6j6p.ap-southeast-2.rds.amazonaws.com"
+db_host = DBH
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": "extrastaff-sales.database.windows.net",
-    "database": "extrastaff_sales",
-    "username": "dev-user",
-    "password": "Nboml@2022",
+    "server": ASS,
+    "database": ASD,
+    "username": ASU,
+    "password": ASP,
     "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
 }
 
