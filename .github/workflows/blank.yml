@@ -28,36 +28,33 @@ jobs:
       - name: Create VPN Config File
         run: echo "${{ secrets.VPN_CONFIG }}" > vpn_config.ovpn
 
-      # Debug VPN Config
+      # 6. Debug VPN Config
       - name: Debug VPN Config
         run: cat vpn_config.ovpn
 
-      # Set Permissions for VPN Config
-      - name: Set Permissions for VPN Config
-        run: chmod 600 vpn_config.ovpn
-
-      # 6. Create VPN Credentials (auth.txt) from Secrets
+      # 7. Create VPN Credentials (auth.txt) from Secrets
       - name: Create auth.txt
         run: |
           echo "${{ secrets.VU }}" > auth.txt
           echo "${{ secrets.VP }}" >> auth.txt
 
-      # Debug auth.txt
-      - name: Debug auth.txt
-        run: cat auth.txt
+      # 8. Set Permissions for VPN Config and Credentials
+      - name: Set Permissions for VPN Config and Credentials
+        run: |
+          chmod 600 vpn_config.ovpn
+          chmod 600 auth.txt
 
-      # 7. Start VPN Connection
+      # 9. Start VPN Connection
       - name: Start VPN Connection
         run: |
           sudo openvpn --config vpn_config.ovpn --auth-user-pass auth.txt --daemon
-          sleep 10
+          sleep 10  # Wait for the VPN to establish
 
-      # 8. Verify VPN Connection
+      # 10. Verify VPN Connection
       - name: Verify VPN Connection
-        run: |
-          ping -c 4 <VPN Server IP> || echo "VPN connection failed"
+        run: ping -c 4 ${{ secrets.VPN_SERVER_IP }} || echo "VPN connection failed"
 
-      # 9. Install Required Dependencies
+      # 11. Install Required Dependencies (e.g., ODBC Driver 17)
       - name: Install ODBC Driver 17
         run: |
           curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
@@ -66,29 +63,23 @@ jobs:
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
           sudo apt-get install -y unixodbc-dev
 
+      # 12. Verify Installed ODBC Drivers
       - name: Verify Installed ODBC Drivers
         run: odbcinst -q -d
 
-      # 10. Set Up Python Environment
+      # 13. Set Up Python Environment
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # 11. Install Python Dependencies
+      # 14. Install Python Dependencies
       - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 12. Debug Secrets
-      - name: Debug Secrets
-        run: |
-          echo "SSH_HOST: ${{ secrets.SSH }}"
-          echo "DB_HOST: ${{ secrets.MSH }}"
-          echo "AZURE_SQL_SERVER: ${{ secrets.AZURE_SERVER }}"
-
-      # 13. Run Python Script
+      # 15. Run Python Script
       - name: Run Python Script
         run: python sqlconn3.py
         env:
