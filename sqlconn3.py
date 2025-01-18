@@ -10,25 +10,25 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # MySQL Configuration
 mysql_config = {
-    "host": os.environ.get("MSH"),       # e.g., "localhost" or IP
-    "user": os.environ.get("MSU"),       # MySQL username
-    "password": os.environ.get("MSP"), # MySQL password
-    "database": os.environ.get("MSN"),     # MySQL database name
+    "host": os.environ.get("DB_HOST", "MSH"),       # e.g., "localhost" or IP
+    "user": os.environ.get("DB_USER", "MSU"),       # MySQL username
+    "password": os.environ.get("DB_PASSWORD", "MSP"), # MySQL password
+    "database": os.environ.get("DB_NAME", "MSN"),     # MySQL database name
 }
 
 # Configuration
 # Configuration
-ssh_host = os.environ.get("SSH")  # SSH server (bastion host) IP
-ssh_user = os.environ.get("SSU")   # SSH username (e.g., ec2-user)
+ssh_host = os.environ.get("SSH_HOST", "SSH")  # SSH server (bastion host) IP
+ssh_user = os.environ.get("SSH_USER", "SSU")   # SSH username (e.g., ec2-user)
 ssh_key_path = os.environ.get("SSH_KEY_PATH", "./neha_key.pem")
-db_host = os.environ.get("DBH")
+db_host = os.environ.get("DBH_HOST", "DBH")
 
 # Azure SQL Configuration
 azure_sql_config = {
-    "server": os.environ.get("AZURE_SERVER"),
-    "database": os.environ.get("AZURE_DATABASE"),
-    "username": os.environ.get("AZURE_USER"),
-    "password": os.environ.get("AZURE_PASSOWRD"),
+    "server": os.environ.get("AZURE_SQL_SERVER", "AZURE_SERVER"),
+    "database": os.environ.get("AZURE_SQL_DATABASE", "AZURE_DATABASE"),
+    "username": os.environ.get("AZURE_SQL_USERNAME", "AZURE_USER"),
+    "password": os.environ.get("AZURE_SQL_PASSWORD", "AZURE_PASSOWRD"),
     "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
 }
 
