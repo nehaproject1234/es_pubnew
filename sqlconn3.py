@@ -5,6 +5,7 @@ import pandas as pd
 import logging
 from sshtunnel import SSHTunnelForwarder
 import paramiko
+import io
 
 pem_content = os.environ["SSH_KEY"]
 
