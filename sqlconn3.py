@@ -6,20 +6,29 @@ import logging
 from sshtunnel import SSHTunnelForwarder
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
+
+# Log Environment Variables
+logging.info("Environment Variables:")
+logging.info(f"SSH_HOST: {os.environ.get('SSH')}")
+logging.info(f"SSH_USER: {os.environ.get('SSU')}")
+logging.info(f"DB_HOST: {os.environ.get('MSH')}")
+logging.info(f"DB_USER: {os.environ.get('MSU')}")
+logging.info(f"AZURE_SQL_SERVER: {os.environ.get('AZURE_SERVER')}")
+logging.info(f"AZURE_SQL_DATABASE: {os.environ.get('AZURE_DATABASE')}")
+logging.info(f"AZURE_SQL_USERNAME: {os.environ.get('AZURE_USER')}")
 
 # MySQL Configuration
 mysql_config = {
-    "host": os.environ.get("MSH"),       # e.g., "localhost" or IP
-    "user": os.environ.get("MSU"),       # MySQL username
-    "password": os.environ.get("MSP"), # MySQL password
-    "database": os.environ.get("MSN"),     # MySQL database name
+    "host": os.environ.get("MSH"),
+    "user": os.environ.get("MSU"),
+    "password": os.environ.get("MSP"),
+    "database": os.environ.get("MSN"),
 }
 
-# Configuration
-# Configuration
-ssh_host = os.environ.get("SSH")  # SSH server (bastion host) IP
-ssh_user = os.environ.get("SSU")   # SSH username (e.g., ec2-user)
+# SSH Configuration
+ssh_host = os.environ.get("SSH")
+ssh_user = os.environ.get("SSU")
 ssh_key_path = "./ssh_key.pem"
 db_host = os.environ.get("DBH")
 
@@ -29,7 +38,7 @@ azure_sql_config = {
     "database": os.environ.get("AZURE_DATABASE"),
     "username": os.environ.get("AZURE_USER"),
     "password": os.environ.get("AZURE_PASSWORD"),
-    "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
+    "driver": "ODBC Driver 17 for SQL Server",
 }
 
 # Azure SQL Table Name
@@ -37,90 +46,86 @@ azure_table_name = "extra_staff.notes"
 batch_size = 1000  # Number of rows per batch
 
 def fetch_max_duration_data():
+    """Fetch the max date and time from Azure SQL."""
     select_max_duration_query = """
-    SELECT top 1
+    SELECT TOP 1
     YEAR(date) as max_year, 
     date as max_date, 
     time as max_time
-    from extra_staff.notes
-    order by year(date) desc, date desc, time desc
+    FROM extra_staff.notes
+    ORDER BY YEAR(date) DESC, date DESC, time DESC
     """
-    conn_str = (
-            f"DRIVER={{{azure_sql_config['driver']}}};"
-            f"SERVER={azure_sql_config['server']};"
-            f"DATABASE={azure_sql_config['database']};"
-            f"UID={azure_sql_config['username']};"
-            f"PWD={azure_sql_config['password']}"
-        )
 
-    with pyodbc.connect(conn_str) as azure_conn:
+    # Build connection string
+    conn_str = (
+        f"DRIVER={{{azure_sql_config['driver']}}};"
+        f"SERVER={azure_sql_config['server']};"
+        f"DATABASE={azure_sql_config['database']};"
+        f"UID={azure_sql_config['username']};"
+        f"PWD={azure_sql_config['password']}"
+    )
+
+    logging.info("Azure SQL Connection String:")
+    logging.info(conn_str)
+
+    try:
+        with pyodbc.connect(conn_str) as azure_conn:
+            logging.info("Connected to Azure SQL successfully.")
             cursor = azure_conn.cursor()
             cursor.execute(select_max_duration_query)
 
             max_duration_query_result = cursor.fetchone()
             max_year = max_duration_query_result.max_year
-            max_date_time = str(max_duration_query_result.max_date) + ' ' + str(max_duration_query_result.max_time)
-            
+            max_date_time = f"{max_duration_query_result.max_date} {max_duration_query_result.max_time}"
+            logging.info(f"Max Year: {max_year}, Max DateTime: {max_date_time}")
             return max_year, max_date_time
-            
-max_year, max_date_time = fetch_max_duration_data()
-
-# Query to fetch data from MySQL
-mysql_query = f"""
-SELECT
-    id,
-    Creator_Id,
-    Type,
-    Date,
-    Time,
-    Name
-FROM notes 
-WHERE YEAR(Date) >= '{max_year}'
-AND concat(date, ' ', time) > '{max_date_time}'
-AND YEAR(Date) NOT IN (5520, 2035)
-"""
-
-print(mysql_query)
+    except pyodbc.Error as e:
+        logging.error(f"Error connecting to Azure SQL: {e}", exc_info=True)
+        raise
 
 def fetch_mysql_data():
     """Fetch data from MySQL using pymysql and return as a DataFrame."""
     try:
-        # Connect to MySQL
+        # Start SSH Tunnel
+        logging.info("Establishing SSH Tunnel...")
         with SSHTunnelForwarder(
-        (ssh_host, 22),                      # Bastion host IP and port
-        ssh_username=ssh_user,               # SSH username
-        ssh_private_key=ssh_key_path,        # Path to private SSH key
-        remote_bind_address=(db_host, 3306)  # RDS endpoint and port
-    ) as tunnel:
-        # Connect to RDS via the SSH tunnel
+            (ssh_host, 22),
+            ssh_username=ssh_user,
+            ssh_private_key=ssh_key_path,
+            remote_bind_address=(db_host, 3306)
+        ) as tunnel:
+            logging.info(f"SSH Tunnel established at port: {tunnel.local_bind_port}")
+            
+            # Connect to MySQL
             connection = pymysql.connect(
-            host=mysql_config['host'],                # Localhost for the SSH tunnel
-            port=tunnel.local_bind_port,     # Dynamically assigned local port
-            user=mysql_config['user'],                    # RDS username
-            password=mysql_config['password'],            # RDS password
-            database=mysql_config['database']    # Replace with your database name
+                host="127.0.0.1",
+                port=tunnel.local_bind_port,
+                user=mysql_config["user"],
+                password=mysql_config["password"],
+                database=mysql_config["database"]
             )
-            logging.info("Connected to MySQL.")
+            logging.info("Connected to MySQL successfully.")
             
-            
-            # Fetch data into a DataFrame
-            df = pd.read_sql(mysql_query, connection)
-            
-            # Clean up 'Time' column
-            df['Time'] = df['Time'].apply(lambda x: str(x).split('days')[-1])
-            
+            # Fetch data
+            query = f"""
+            SELECT id, Creator_Id, Type, Date, Time, Name
+            FROM notes 
+            WHERE YEAR(Date) >= '{max_year}'
+            AND CONCAT(date, ' ', time) > '{max_date_time}'
+            AND YEAR(Date) NOT IN (5520, 2035)
+            """
+            logging.info("MySQL Query:")
+            logging.info(query)
+            df = pd.read_sql(query, connection)
             logging.info(f"Fetched {len(df)} rows from MySQL.")
-            connection.close()
-        return df
+            return df
     except Exception as e:
-        logging.error(f"Error fetching data from MySQL: {e}")
+        logging.error(f"Error in MySQL connection or fetching data: {e}", exc_info=True)
         return None
-
 
 def upload_to_azure_sql(df):
     """Upload a DataFrame to Azure SQL in batches."""
     try:
-        # Create Azure SQL connection string
         conn_str = (
             f"DRIVER={{{azure_sql_config['driver']}}};"
             f"SERVER={azure_sql_config['server']};"
@@ -128,16 +133,15 @@ def upload_to_azure_sql(df):
             f"UID={azure_sql_config['username']};"
             f"PWD={azure_sql_config['password']}"
         )
-
         with pyodbc.connect(conn_str) as azure_conn:
             cursor = azure_conn.cursor()
             logging.info("Connected to Azure SQL.")
-
-            # Prepare data for batch insertion
+            
+            # Prepare batch insert query
             columns = ", ".join(df.columns)
             placeholders = ", ".join(["?"] * len(df.columns))
             query = f"INSERT INTO {azure_table_name} ({columns}) VALUES ({placeholders})"
-
+            
             # Insert data in batches
             for start in range(0, len(df), batch_size):
                 end = start + batch_size
@@ -145,22 +149,21 @@ def upload_to_azure_sql(df):
                 data = [tuple(row) for row in batch.to_numpy()]
                 cursor.executemany(query, data)
                 logging.info(f"Inserted rows {start} to {end - 1} into Azure SQL.")
-
             azure_conn.commit()
-            logging.info("All data uploaded to Azure SQL.")
-    except Exception as e:
-        logging.error(f"Error uploading data to Azure SQL: {e}")
-
+    except pyodbc.Error as e:
+        logging.error(f"Error uploading data to Azure SQL: {e}", exc_info=True)
+        raise
 
 def main():
-    # Fetch data from MySQL
+    """Main workflow."""
+    logging.info("Starting data processing workflow...")
+    global max_year, max_date_time
+    max_year, max_date_time = fetch_max_duration_data()
     df = fetch_mysql_data()
     if df is not None and not df.empty:
-        # Upload data to Azure SQL
         upload_to_azure_sql(df)
     else:
-        logging.warning("No data to upload.")
-
+        logging.warning("No data to upload. MySQL fetch returned empty or None.")
 
 if __name__ == "__main__":
     main()
