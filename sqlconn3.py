@@ -4,13 +4,6 @@ import pyodbc
 import pandas as pd
 import logging
 from sshtunnel import SSHTunnelForwarder
-import paramiko
-import io
-
-pem_content = os.environ["SSH_KEY"]
-
-# Create an RSAKey object from the string content
-private_key = paramiko.RSAKey(file_obj=io.StringIO(pem_content))
 
 MSH = os.environ["MSH"]
 MSU = os.environ["MSU"]
@@ -42,7 +35,7 @@ mysql_config = {
 # Configuration
 ssh_host = SSH # SSH server (bastion host) IP
 ssh_user = SSU   # SSH username (e.g., ec2-user)
-ssh_key_path = private_key
+ssh_key_path = os.environ.get("SSH_KEY_PATH", "./neha_key.pem")
 db_host = DBH
 
 # Azure SQL Configuration
