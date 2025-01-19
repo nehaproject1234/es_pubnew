@@ -3,7 +3,7 @@ name: new Connect via VPN and Run Workflow
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/5 * * * *" # Runs every 5 minutes
+    - cron: "*/8 * * * *" # Runs every 5 minutes
   push:
     branches:
       - main
