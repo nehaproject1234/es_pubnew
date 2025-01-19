@@ -46,7 +46,7 @@ jobs:
           pip install -r requirements.txt # Ensure your repo has a requirements.txt
       - name: Run Python Script
         run: python sqlconn3.py
-        env:         
+        env:   
           SSH_KEY_PATH: ./neha_key.pem
           SSH_KEY: ${{ secrets.SSH_KEY }}
           MSH: ${{ secrets.MSH }}
