@@ -2,8 +2,8 @@ name: new Connect via VPN and Run Workflow
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "5 * * * *" # Runs every 8 minutes
+  # schedule:
+  #   - cron: "5 * * * *" # Runs every 8 minutes
   repository_dispatch:  # Trigger via HTTP
     types: [manual-trigger]  # Define a custom event type
   push:
