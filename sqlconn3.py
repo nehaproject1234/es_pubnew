@@ -53,12 +53,8 @@ batch_size = 1000  # Number of rows per batch
 
 def fetch_max_duration_data():
     select_max_duration_query = """
-    SELECT top 1
-    YEAR(date) as max_year, 
-    date as max_date, 
-    time as max_time
-    from extra_staff.notes
-    order by year(date) desc, date desc, time desc
+    SELECT MAX([id]) as max_id
+    FROM extra_staff.notes;
     """
     conn_str = (
             f"DRIVER={{{azure_sql_config['driver']}}};"
@@ -73,12 +69,10 @@ def fetch_max_duration_data():
             cursor.execute(select_max_duration_query)
 
             max_duration_query_result = cursor.fetchone()
-            max_year = max_duration_query_result.max_year
-            max_date_time = str(max_duration_query_result.max_date) + ' ' + str(max_duration_query_result.max_time)
+            max_id = max_duration_query_result.max_id
+            return max_id
             
-            return max_year, max_date_time
-            
-max_year, max_date_time = fetch_max_duration_data()
+max_id = fetch_max_duration_data()
 
 # Query to fetch data from MySQL
 mysql_query = f"""
@@ -90,8 +84,7 @@ SELECT
     Time,
     Name
 FROM notes 
-WHERE YEAR(Date) >= '{max_year}'
-AND concat(date, ' ', time) > '{max_date_time}'
+WHERE id > {max_id}
 AND YEAR(Date) NOT IN (5520, 2035)
 """
 
