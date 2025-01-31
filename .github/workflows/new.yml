@@ -31,8 +31,8 @@ jobs:
 
       - name: Create auth.txt
         run: |
-          echo "neha.mawal" > auth.txt
-          echo "11071991" >> auth.txt
+          echo "" > auth.txt
+          echo "" >> auth.txt
 
       - name: Start VPN Connection
         run: |
