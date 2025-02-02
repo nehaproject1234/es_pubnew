@@ -47,6 +47,11 @@ jobs:
           printf "%s\n" "${{ secrets.VP }}" >> auth.txt
           ls -l auth.txt  # Check if auth.txt exists
           cat auth.txt
+
+      - name: Verify VPN Configuration File
+        run: |
+          ls -l /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn
+          cat /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn
           
       - name: Start VPN Connection
         run: |
