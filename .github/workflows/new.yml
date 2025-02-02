@@ -29,7 +29,7 @@ jobs:
       - name: Install OpenVPN
         run: |
           sudo apt-get install -y openvpn
-          echo "${{secrets.VPN_OVPN_BASE64}}" > | base64 --decode > myvpn.ovpn
+          echo "${{secrets.VPN_OVPN_BASE64}}" | base64 --decode > myvpn.ovpn
           chmod 600 auth.txt
           echo "${{secrets.VU}}" > auth.txt
           echo "${{secrets.VP}}" >> auth.txt
