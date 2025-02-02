@@ -1,4 +1,4 @@
-name: Connect via VPN and Run Workflow
+name: new Connect via VPN and Run Workflow
 
 on:
   workflow_dispatch:
@@ -25,39 +25,18 @@ jobs:
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
           sudo apt-get install -y unixodbc-dev
-      
+
       - name: Install OpenVPN
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y openvpn
-        
-      - name: Debug Secrets
-        run: |
-          echo "VU Length: ${#VU}"
-          echo "VP Length: ${#VP}"
-        env:
-          VU: ${{ secrets.VU }}
-          VP: ${{ secrets.VP }}
+        run: sudo apt-get install -y openvpn
 
-      - name: Create Authentication File
-        shell: bash
+      - name: Create auth.txt
         run: |
-          pwd
-          printf "%s\n" "${{ secrets.VU }}" > auth.txt
-          printf "%s\n" "${{ secrets.VP }}" >> auth.txt
-          ls -l auth.txt  # Check if auth.txt exists
-          cat auth.txt
+          echo "neha.mawal" > auth.txt
+          echo "11071991" >> auth.txt
 
-      - name: Verify VPN Configuration File
-        run: |
-          echo "Checking for myvpn.ovpn at /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn"
-          ls -l /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "myvpn.ovpn not found!"
-          cat /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "myvpn.ovpn not found!"
-          
       - name: Start VPN Connection
         run: |
-          echo "Starting VPN connection..."
-          sudo openvpn --config /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn --auth-user-pass auth.txt --daemon
+          sudo openvpn --config ROL_neha.mawal_RecruitOnline.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
       - name: Set up Python
@@ -69,7 +48,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt # Ensure your repo has a requirements.txt
-
       - name: Run Python Script
         run: python sqlconn3.py
         env:   
