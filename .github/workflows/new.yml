@@ -31,20 +31,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openvpn
         
-          # Create the OVPN file from the GitHub Secret
-          echo "${{ secrets.VPN_OVPN_CONFIG }}" > myvpn.ovpn
-        
           # Create authentication file
           echo "${{ secrets.VU }}" > auth.txt
           echo "${{ secrets.VP }}" >> auth.txt
-        
-          # Set correct file permissions
-          chmod 600 myvpn.ovpn auth.txt
-        
-          # Debugging: Check if files exist
-          ls -l myvpn.ovpn auth.txt
-          head -n 10 myvpn.ovpn
-        shell: bash
           
       - name: Start VPN Connection
         run: |
