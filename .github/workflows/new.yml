@@ -34,7 +34,7 @@ jobs:
           echo "${{secrets.VU}}" > auth.txt
           echo "${{secrets.VP}}" >> auth.txt
           chmod 600 auth.txt
-          trap "rm -f myvpn.ovpn auth.txt" EXIT
+          
 
       - name: Start VPN Connection
         run: |
