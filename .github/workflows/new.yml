@@ -50,7 +50,7 @@ jobs:
           
       - name: Start VPN Connection
         run: |
-          sudo openvpn --config myvpn.ovpn --auth-user-pass auth.txt --daemon
+          sudo openvpn --config /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
       - name: Set up Python
