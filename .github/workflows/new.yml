@@ -50,11 +50,13 @@ jobs:
 
       - name: Verify VPN Configuration File
         run: |
-          ls -l /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "File not found"
-          cat /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "File not found"
+          echo "Checking for myvpn.ovpn at /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn"
+          ls -l /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "myvpn.ovpn not found!"
+          cat /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "myvpn.ovpn not found!"
           
       - name: Start VPN Connection
         run: |
+          echo "Starting VPN connection..."
           sudo openvpn --config /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
