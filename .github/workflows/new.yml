@@ -30,7 +30,7 @@ jobs:
         run: |
           sudo apt-get install -y openvpn
           echo "${{secrets.VPN_OVPN_BASE64}}" | base64 --decode > myvpn.ovpn
-          chmod 600 auth.txt
+          chmod 600 myvpn.ovpn
           echo "${{secrets.VU}}" > auth.txt
           echo "${{secrets.VP}}" >> auth.txt
           chmod 600 auth.txt
