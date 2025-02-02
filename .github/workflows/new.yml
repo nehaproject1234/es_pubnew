@@ -31,9 +31,13 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openvpn
         
-          # Create authentication file
-          echo "${{ secrets.VU }}" > auth.txt
-          echo "${{ secrets.VP }}" >> auth.txt
+      - name: Debug Secrets
+        run: |
+          echo "VU Length: ${#VU}"
+          echo "VP Length: ${#VP}"
+        env:
+          VU: ${{ secrets.VU }}
+          VP: ${{ secrets.VP }}
           
       - name: Start VPN Connection
         run: |
