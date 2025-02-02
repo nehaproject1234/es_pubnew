@@ -13,41 +13,63 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Install OpenVPN
       - name: Install OpenVPN
         run: |
           sudo apt-get update
           sudo apt-get install -y openvpn
 
-      - name: Verify Files Exist (Debug)
+      # Step 3: Verify files exist (DEBUGGING)
+      - name: Debug - Check Files
         run: |
           echo "Current directory: $(pwd)"
-          echo "Listing all files:"
-          ls -la
+          echo "Files in directory:"
+          ls -la  # List ALL files
           echo "Checking for myvpn.ovpn:"
-          ls -l myvpn.ovpn || echo "ERROR: myvpn.ovpn not found!"
+          if [ -f "myvpn.ovpn" ]; then
+            echo "myvpn.ovpn found!"
+            cat myvpn.ovpn  # Print first few lines of the file
+          else
+            echo "ERROR: myvpn.ovpn NOT FOUND!"
+            exit 1  # Fail the workflow explicitly
+          fi
 
-      - name: Create Authentication File
+      # Step 4: Create authentication file
+      - name: Create Auth File
         run: |
+          echo "Creating auth.txt..."
           printf "%s\n" "${{ secrets.VU }}" > auth.txt
           printf "%s\n" "${{ secrets.VP }}" >> auth.txt
           echo "Auth file content:"
           cat auth.txt
 
-      - name: Start VPN Connection
+      # Step 5: Start VPN connection
+      - name: Connect to VPN
         run: |
-          sudo openvpn --config myvpn.ovpn --auth-user-pass auth.txt --daemon
-          sleep 10  # Wait for VPN to establish
+          echo "Starting VPN..."
+          sudo openvpn \
+            --config myvpn.ovpn \
+            --auth-user-pass auth.txt \
+            --daemon \
+            --log vpn.log  # Log output to a file
 
-      # Remaining steps (Python setup, etc.)
+          echo "Waiting for VPN to connect..."
+          sleep 15
+
+          echo "VPN connection status:"
+          cat vpn.log || echo "No VPN log found"
+
+      # Remaining steps
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13.1'
+          python-version: '3.13.1'  # Replace with your Python version
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           pip install -r requirements.txt
 
