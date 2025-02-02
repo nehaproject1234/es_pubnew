@@ -2,10 +2,8 @@ name: Connect via VPN and Run Workflow
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "5 * * * *" # Runs every 8 minutes
-  repository_dispatch:  # Trigger via HTTP
-    types: [manual-trigger]  # Define a custom event type
+  repository_dispatch:
+    types: [manual-trigger]
   push:
     branches:
       - main
@@ -18,57 +16,40 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Install ODBC Driver 17
-        run: |
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
-          sudo apt-get install -y unixodbc-dev
-      
       - name: Install OpenVPN
         run: |
           sudo apt-get update
           sudo apt-get install -y openvpn
-        
-      - name: Debug Secrets
+
+      - name: Verify Files Exist (Debug)
         run: |
-          echo "VU Length: ${#VU}"
-          echo "VP Length: ${#VP}"
-        env:
-          VU: ${{ secrets.VU }}
-          VP: ${{ secrets.VP }}
+          echo "Current directory: $(pwd)"
+          echo "Listing all files:"
+          ls -la
+          echo "Checking for myvpn.ovpn:"
+          ls -l myvpn.ovpn || echo "ERROR: myvpn.ovpn not found!"
 
       - name: Create Authentication File
-        shell: bash
         run: |
-          pwd
           printf "%s\n" "${{ secrets.VU }}" > auth.txt
           printf "%s\n" "${{ secrets.VP }}" >> auth.txt
-          ls -l auth.txt  # Check if auth.txt exists
+          echo "Auth file content:"
           cat auth.txt
 
-      - name: Verify VPN Configuration File
-        run: |
-          echo "Checking for myvpn.ovpn at /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn"
-          ls -l /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "myvpn.ovpn not found!"
-          cat /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "myvpn.ovpn not found!"
-          
       - name: Start VPN Connection
         run: |
-          echo "Starting VPN connection..."
-          sudo openvpn --config /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn --auth-user-pass auth.txt --daemon
-          sleep 10  # Wait for the VPN to establish
+          sudo openvpn --config myvpn.ovpn --auth-user-pass auth.txt --daemon
+          sleep 10  # Wait for VPN to establish
 
+      # Remaining steps (Python setup, etc.)
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13.1' # Replace with your Python version, e.g., '3.9'
-          
+          python-version: '3.13.1'
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt # Ensure your repo has a requirements.txt
+          pip install -r requirements.txt
 
       - name: Run Python Script
         run: python sqlconn3.py
