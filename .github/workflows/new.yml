@@ -28,18 +28,31 @@ jobs:
 
       - name: Install OpenVPN
         run: |
+          sudo apt-get update
           sudo apt-get install -y openvpn
-          echo "${{secrets.VPN_OVPN_BASE64}}" | base64 --decode > myvpn.ovpn
+          echo "${{ secrets.VPN_OVPN_BASE64 }}" | base64 --decode | tee myvpn.ovpn > /dev/null
           chmod 600 myvpn.ovpn
-          echo "${{secrets.VU}}" > auth.txt
-          echo "${{secrets.VP}}" >> auth.txt
+          ls -l myvpn.ovpn  # Debugging: Check if file exists
+          echo "${{ secrets.VU }}" > auth.txt
+          echo "${{ secrets.VP }}" >> auth.txt
           chmod 600 auth.txt
-          
+          ls -l auth.txt  # Debugging: Check if file exists
+        shell: bash
 
       - name: Start VPN Connection
         run: |
+          if [[ ! -f "myvpn.ovpn" ]]; then
+            echo "Error: myvpn.ovpn file not found!"
+            exit 1
+          fi
+          if [[ ! -f "auth.txt" ]]; then
+            echo "Error: auth.txt file not found!"
+            exit 1
+          fi
           sudo openvpn --config myvpn.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
+        shell: bash
+
 
       - name: Set up Python
         uses: actions/setup-python@v4
