@@ -1,3 +1,13 @@
+name: Connect via VPN and Run Workflow
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [manual-trigger]
+  push:
+    branches:
+      - main
+
 jobs:
   vpn-job:
     runs-on: ubuntu-latest
@@ -13,67 +23,51 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y openvpn
 
-      # Step 3: Debug VPN Secret
-      - name: Debug VPN Secret
-        run: |
-          if [[ -z "${{ secrets.VPN_OVPN_CONFIG }}" ]]; then
-            echo "ERROR: VPN_OVPN_CONFIG secret is empty!"
-            exit 1
-          else
-            echo "VPN_OVPN_CONFIG secret is set."
-          fi
-
-      # Step 4: Create VPN Configuration File
-      - name: Create VPN Configuration File
-        run: |
-          echo "Creating myvpn.ovpn..."
-          printf "%s\n" "${{ secrets.VPN_OVPN_CONFIG }}" > myvpn.ovpn
-          chmod 600 myvpn.ovpn
-          echo "OVPN file created. Verifying content..."
-          ls -l myvpn.ovpn  # Verify file creation
-          head -n 10 myvpn.ovpn  # Preview first 10 lines
-
-      # Step 5: Debug File Existence
+      # Step 3: Verify files exist (DEBUGGING)
       - name: Debug - Check Files
         run: |
           echo "Current directory: $(pwd)"
+          echo "Files in directory:"
           ls -la  # List ALL files
           echo "Checking for myvpn.ovpn:"
-          if [[ -f "myvpn.ovpn" ]]; then
+          if [ -f "myvpn.ovpn" ]; then
             echo "myvpn.ovpn found!"
-            head -n 10 myvpn.ovpn  # Print first few lines
+            cat myvpn.ovpn  # Print first few lines of the file
           else
             echo "ERROR: myvpn.ovpn NOT FOUND!"
-            exit 1
+            exit 1  # Fail the workflow explicitly
           fi
 
-      # Step 6: Create authentication file
+      # Step 4: Create authentication file
       - name: Create Auth File
         run: |
+          echo "Creating auth.txt..."
           printf "%s\n" "${{ secrets.VU }}" > auth.txt
           printf "%s\n" "${{ secrets.VP }}" >> auth.txt
-          chmod 600 auth.txt
-          ls -l auth.txt
-          cat auth.txt  # Debugging
+          echo "Auth file content:"
+          cat auth.txt
 
-      # Step 7: Start VPN connection
+      # Step 5: Start VPN connection
       - name: Connect to VPN
         run: |
-          if [[ ! -f "myvpn.ovpn" ]]; then
-            echo "Error: myvpn.ovpn file not found!"
-            exit 1
-          fi
           echo "Starting VPN..."
-          sudo openvpn --config "$(pwd)/myvpn.ovpn" --auth-user-pass auth.txt --daemon --log vpn.log
+          sudo openvpn \
+            --config myvpn.ovpn \
+            --auth-user-pass auth.txt \
+            --daemon \
+            --log vpn.log  # Log output to a file
+
+          echo "Waiting for VPN to connect..."
           sleep 15
+
           echo "VPN connection status:"
           cat vpn.log || echo "No VPN log found"
 
-      # Step 8: Install Python & Run Script
+      # Remaining steps
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13.1'
+          python-version: '3.13.1'  # Replace with your Python version
 
       - name: Install Dependencies
         run: |
