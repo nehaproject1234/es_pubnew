@@ -38,6 +38,12 @@ jobs:
         env:
           VU: ${{ secrets.VU }}
           VP: ${{ secrets.VP }}
+
+      - name: Create Authentication File
+        shell: bash
+        run: |
+          printf "%s\n" "${{ secrets.VU }}" > auth.txt
+          printf "%s\n" "${{ secrets.VP }}" >> auth.txt
           
       - name: Start VPN Connection
         run: |
