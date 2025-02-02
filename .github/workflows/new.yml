@@ -25,6 +25,12 @@ jobs:
           sudo apt-get update
           sudo ACCEPT_EULA=Y apt-get install -y msodbcsql17
           sudo apt-get install -y unixodbc-dev
+          
+      - name: Debug VPN Secret
+        run: |
+          echo "VPN_OVPN_BASE64 Length: ${#VPN_OVPN_BASE64}"
+        env:
+          VPN_OVPN_BASE64: ${{ secrets.VPN_OVPN_BASE64 }}
 
       - name: Install OpenVPN
         run: |
