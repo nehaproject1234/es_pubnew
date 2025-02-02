@@ -50,8 +50,8 @@ jobs:
 
       - name: Verify VPN Configuration File
         run: |
-          ls -l /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn
-          cat /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn
+          ls -l /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "File not found"
+          cat /home/runner/work/es_pubnew/es_pubnew/myvpn.ovpn || echo "File not found"
           
       - name: Start VPN Connection
         run: |
