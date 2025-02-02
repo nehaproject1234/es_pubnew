@@ -27,16 +27,18 @@ jobs:
           sudo apt-get install -y unixodbc-dev
 
       - name: Install OpenVPN
-        run: sudo apt-get install -y openvpn
-
-      - name: Create auth.txt
         run: |
-          echo "" > auth.txt
-          echo "" >> auth.txt
+          sudo apt-get install -y openvpn
+          echo "${{secrets.VPN_OVPN_BASE64}}" > | base64 --decode > myvpn.ovpn
+          chmod 600 auth.txt
+          echo "${{secrets.VU}}" > auth.txt
+          echo "${{secrets.VP}}" >> auth.txt
+          chmod 600 auth.txt
+          trap "rm -f myvpn.ovpn auth.txt" EXIT
 
       - name: Start VPN Connection
         run: |
-          sudo openvpn --config ROL_neha.mawal_RecruitOnline.ovpn --auth-user-pass auth.txt --daemon
+          sudo openvpn --config myvpn.ovpn --auth-user-pass auth.txt --daemon
           sleep 10  # Wait for the VPN to establish
 
       - name: Set up Python
