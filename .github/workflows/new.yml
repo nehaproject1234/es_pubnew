@@ -42,6 +42,7 @@ jobs:
       - name: Create Authentication File
         shell: bash
         run: |
+          pwd
           printf "%s\n" "${{ secrets.VU }}" > auth.txt
           printf "%s\n" "${{ secrets.VP }}" >> auth.txt
           
