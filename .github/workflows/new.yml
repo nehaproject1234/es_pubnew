@@ -43,6 +43,8 @@ jobs:
         shell: bash
         run: |
           pwd
+          ls -l auth.txt  # Check if auth.txt exists
+          cat auth.txt
           printf "%s\n" "${{ secrets.VU }}" > auth.txt
           printf "%s\n" "${{ secrets.VP }}" >> auth.txt
           
