@@ -30,7 +30,6 @@ jobs:
         run: sudo apt-get install -y openvpn
 
       - name: Create auth.txt
-      - name: Create auth.txt
         env:
           VPN_USERNAME: ${{ secrets.VU }}
           VPN_PASSWORD: ${{ secrets.VP }}
