@@ -30,9 +30,13 @@ jobs:
         run: sudo apt-get install -y openvpn
 
       - name: Create auth.txt
+      - name: Create auth.txt
+        env:
+          VPN_USERNAME: ${{ secrets.VU }}
+          VPN_PASSWORD: ${{ secrets.VP }}
         run: |
-          echo "neha.mawal" > auth.txt
-          echo "11071991" >> auth.txt
+          echo "$VPN_USERNAME" > auth.txt
+          echo "$VPN_PASSWORD" >> auth.txt      
 
       - name: Start VPN Connection
         run: |
