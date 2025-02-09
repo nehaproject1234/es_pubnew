@@ -1,11 +1,9 @@
-name: new Connect via VPN and Run Workflow
+name: Connect via VPN and Run Workflow
 
 on:
   workflow_dispatch:
-  # schedule:
-  #   - cron: "5 * * * *" # Runs every 8 minutes
-  repository_dispatch:  # Trigger via HTTP
-    types: [manual-trigger]  # Define a custom event type
+  repository_dispatch:
+    types: [manual-trigger]
   push:
     branches:
       - main
@@ -29,28 +27,51 @@ jobs:
       - name: Install OpenVPN
         run: sudo apt-get install -y openvpn
 
-      - name: Create auth.txt
+      - name: Create VPN Configuration
+        env:
+          VPN_CONFIG: ${{ secrets.VPN_OVPN_BASE_64 }}
+        run: |
+          # Decode base64 and create VPN config file
+          echo "$VPN_CONFIG" | base64 -d > config.ovpn
+          # Verify config file
+          if [ -s config.ovpn ]; then
+            echo "VPN config created successfully"
+          else
+            echo "Error: VPN config is empty!"
+            exit 1
+          fi
+          # Set secure permissions
+          chmod 600 config.ovpn
+
+      - name: Create VPN Credentials
         env:
           VPN_USERNAME: ${{ secrets.VU }}
           VPN_PASSWORD: ${{ secrets.VP }}
         run: |
           echo "$VPN_USERNAME" > auth.txt
-          echo "$VPN_PASSWORD" >> auth.txt      
+          echo "$VPN_PASSWORD" >> auth.txt
+          chmod 600 auth.txt
 
-      - name: Start VPN Connection
+      - name: Establish VPN Connection
         run: |
-          sudo openvpn --config ROL_neha.mawal_RecruitOnline.ovpn --auth-user-pass auth.txt --daemon
-          sleep 10  # Wait for the VPN to establish
+          echo "Starting VPN connection..."
+          sudo openvpn --config config.ovpn --auth-user-pass auth.txt --daemon
+          echo "Waiting for VPN to initialize..."
+          sleep 15
+          echo "VPN connection status:"
+          ip a show tun0 || (echo "VPN connection failed!"; exit 1)
 
+      # Rest of your workflow remains the same
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.13.1' # Replace with your Python version, e.g., '3.9'
-          
+          python-version: '3.13.1'
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt # Ensure your repo has a requirements.txt
+          pip install -r requirements.txt
+
       - name: Run Python Script
         run: python sqlconn3.py
         env:   
