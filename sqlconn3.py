@@ -49,7 +49,7 @@ azure_sql_config = {
 
 # Azure SQL Table Name
 azure_table_name = "extra_staff.notes"
-batch_size = 1000  # Number of rows per batch
+batch_size = 10000  # Number of rows per batch
 
 def fetch_max_duration_data():
     select_max_duration_query = """
