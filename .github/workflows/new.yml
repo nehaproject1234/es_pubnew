@@ -27,14 +27,7 @@ jobs:
           sudo apt-get install -y unixodbc-dev
 
       - name: Install OpenVPN
-        run: sudo apt-get install -y openvpn
-
-      - name: Decode and Write VPN Key
-        env:
-          VPN_KEY_BASE64: ${{ secrets.VPN_OVPN_BASE_64 }}  # Secret containing Base64 VPN key
-        run: |
-          echo "$VPN_KEY_BASE64" | base64 --decode > vpn-key.pem
-          chmod 600 vpn-key.pem  # Secure the key file  
+        run: sudo apt-get install -y openvpn 
 
       - name: Create auth.txt
         env:
