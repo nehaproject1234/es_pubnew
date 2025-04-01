@@ -27,7 +27,7 @@ jobs:
           sudo apt-get install -y unixodbc-dev
 
       - name: Install OpenVPN
-        run: sudo apt-get install -y openvpn
+        run: sudo apt-get install -y openvpn 
 
       - name: Create auth.txt
         env:
