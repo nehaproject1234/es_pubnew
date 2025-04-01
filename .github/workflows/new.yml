@@ -32,6 +32,11 @@ jobs:
       - name: Create VPN config file from secret
         run: |
           echo "${{ secrets.V_FILE }}" > config.ovpn
+
+      - name: Start VPN Connection
+        run: |
+          sudo openvpn --config config.ovpn --daemon
+          sleep 10
           
       - name: Create auth.txt
         env:
