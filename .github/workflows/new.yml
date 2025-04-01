@@ -28,7 +28,10 @@ jobs:
 
       - name: Install OpenVPN
         run: sudo apt-get install -y openvpn 
-
+        
+      - name: Create VPN config file from secret
+        run: |
+          echo "${{ secrets.V_FILE }}" > config.ovpn
       - name: Create auth.txt
         env:
           VPN_USERNAME: ${{ secrets.VU }}
