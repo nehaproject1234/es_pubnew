@@ -43,7 +43,7 @@ jobs:
 
       - name: Start VPN Connection
         run: |
-          sudo openvpn --config config.ovpn --daemon
+          sudo openvpn --config config.ovpn --auth-user-pass auth.txt --daemon
           sleep 15     
 
       - name: Set up Python
