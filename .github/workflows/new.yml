@@ -32,6 +32,7 @@ jobs:
       - name: Create VPN config file from secret
         run: |
           echo "${{ secrets.V_FILE }}" > config.ovpn
+          
       - name: Create auth.txt
         env:
           VPN_USERNAME: ${{ secrets.VU }}
@@ -40,10 +41,6 @@ jobs:
           echo "$VPN_USERNAME" > auth.txt
           echo "$VPN_PASSWORD" >> auth.txt      
 
-      - name: Start VPN Connection
-        run: |
-          sudo openvpn --config ROL_neha.mawal_RecruitOnline.ovpn --auth-user-pass auth.txt --daemon
-          sleep 10  # Wait for the VPN to establish
 
       - name: Set up Python
         uses: actions/setup-python@v4
