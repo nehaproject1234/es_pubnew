@@ -36,7 +36,7 @@ jobs:
       - name: Start VPN Connection
         run: |
           sudo openvpn --config config.ovpn --daemon
-          sleep 10
+          sleep 50
           
       - name: Create auth.txt
         env:
