@@ -33,19 +33,18 @@ jobs:
         run: |
           echo "${{ secrets.V_FILE }}" > config.ovpn
 
-      - name: Start VPN Connection
-        run: |
-          sudo openvpn --config config.ovpn --daemon
-          sleep 50
-          
       - name: Create auth.txt
         env:
           VPN_USERNAME: ${{ secrets.VU }}
           VPN_PASSWORD: ${{ secrets.VP }}
         run: |
           echo "$VPN_USERNAME" > auth.txt
-          echo "$VPN_PASSWORD" >> auth.txt      
+          echo "$VPN_PASSWORD" >> auth.txt
 
+      - name: Start VPN Connection
+        run: |
+          sudo openvpn --config config.ovpn --daemon
+          sleep 15     
 
       - name: Set up Python
         uses: actions/setup-python@v4
