@@ -35,7 +35,7 @@ mysql_config = {
 # Configuration
 ssh_host = SSH # SSH server (bastion host) IP
 ssh_user = SSU   # SSH username (e.g., ec2-user)
-ssh_key_path = os.environ.get("SSH_KEY_PATH", "./neha_key.pem")
+ssh_key_path = os.environ.get("SSH_KEY_PATH", "./rokl.pem")
 db_host = DBH
 
 # Azure SQL Configuration
