@@ -44,7 +44,13 @@ jobs:
       - name: Start VPN Connection
         run: |
           sudo openvpn --config config.ovpn --auth-user-pass auth.txt --daemon
-          sleep 30     
+          sleep 30  
+
+      # Now SSH key setup (AFTER VPN is connected)
+      - name: Write SSH key to file
+        run: |
+          echo "${{ secrets.ROK }}" > rokl.pem
+          chmod 600 rokl.pem
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -58,8 +64,8 @@ jobs:
       - name: Run Python Script
         run: python sqlconn3.py
         env:   
-          SSH_KEY_PATH: ./neha_key.pem
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY_PATH: ./rokl.pem
+          SSH_KEY: ${{ secrets.ROK }}
           MSH: ${{ secrets.MSH }}
           SSH: ${{ secrets.SSH }}
           SSU: ${{ secrets.SSU }}
