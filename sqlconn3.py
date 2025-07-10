@@ -25,10 +25,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 # MySQL Configuration
 mysql_config = {
-    "host": MSH,       # e.g., "localhost" or IP
-    "user":MSU,       # MySQL username
-    "password": MSP, # MySQL password
-    "database": MSN,     # MySQL database name
+    "host": MSH,       
+    "user":MSU,       
+    "password": MSP, 
+    "database": MSN,     
 }
 
 # Configuration
@@ -44,7 +44,7 @@ azure_sql_config = {
     "database": ASD,
     "username": ASU,
     "password": ASP,
-    "driver": "ODBC Driver 17 for SQL Server",  # Ensure the correct driver is installed
+    "driver": "ODBC Driver 17 for SQL Server", 
 }
 
 # Azure SQL Table Name
@@ -95,18 +95,18 @@ def fetch_mysql_data():
     try:
         # Connect to MySQL
         with SSHTunnelForwarder(
-        (ssh_host, 22),                      # Bastion host IP and port
-        ssh_username=ssh_user,               # SSH username
-        ssh_private_key=ssh_key_path,        # Path to private SSH key
-        remote_bind_address=(db_host, 3306)  # RDS endpoint and port
+        (ssh_host, 22),                      
+        ssh_username=ssh_user,              
+        ssh_private_key=ssh_key_path,        
+        remote_bind_address=(db_host, 3306)  
     ) as tunnel:
         # Connect to RDS via the SSH tunnel
             connection = pymysql.connect(
-            host=mysql_config['host'],                # Localhost for the SSH tunnel
-            port=tunnel.local_bind_port,     # Dynamically assigned local port
-            user=mysql_config['user'],                    # RDS username
-            password=mysql_config['password'],            # RDS password
-            database=mysql_config['database']    # Replace with your database name
+            host=mysql_config['host'],               
+            port=tunnel.local_bind_port,    
+            user=mysql_config['user'],                    
+            password=mysql_config['password'],            
+            database=mysql_config['database']    
             )
             logging.info("Connected to MySQL.")
             
